@@ -1,5 +1,5 @@
 {
-  "name": "validator-queue",
+  "name": "eth2-validator-queue",
   "version": "0.1.0",
   "private": true,
   "scripts": {
