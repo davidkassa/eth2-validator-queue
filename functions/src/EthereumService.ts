@@ -92,7 +92,7 @@ export default class EthereumService {
 
       const genesisTime = 1606824000;
       let offset = moment();
-      let genesis = moment.unix(genesisTime);
+      let genesis = moment(genesisTime, "X");
 
       if (offset < genesis) {
         offset = genesis;
