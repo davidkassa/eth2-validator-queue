@@ -5,11 +5,15 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-all": "npm run build && npm run build --prefix functions",
+    "ci-all": "npm ci && npm ci --prefix functions",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "dayjs": "^1.9.6",
+    "moment": "^2.29.1",
     "vue": "^3.0.0"
   },
   "devDependencies": {

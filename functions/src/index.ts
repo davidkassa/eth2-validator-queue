@@ -7,6 +7,7 @@ exports.validatorQueue = functions.https.onRequest(
   async (request, response) => {
     functions.logger.info("validatorQueue", { structuredData: true });
     const validatorQueue = await service.getValidatorQueue();
+    response.set("Access-Control-Allow-Origin", "*");
     response.send({ ...validatorQueue });
   }
 );

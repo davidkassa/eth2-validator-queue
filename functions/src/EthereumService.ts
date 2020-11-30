@@ -31,6 +31,7 @@ export default class EthereumService {
 
   // Count deposits that have a valid contract starting with block 11320899 (first block after genesis - delay)
   // and calculate with time based on validator activation rules
+  // TODO: cache heavily
   // TODO: split processing into cronjob
   // TODO: validate contracts with eth_getTransactionReceipt, bad contract tx: 0xffff18a9c5da09f367325f4d98bb0cfb4f7885eddf3f010b1e6693c6852ac2c4
   // TODO: make this work on testnets
@@ -99,7 +100,7 @@ export default class EthereumService {
       }
       offset.add(96 * queueLength, "seconds");
 
-      this.queueDuration = offset.format("X");
+      this.queueDuration = offset.unix();
     }
 
     return this.queueDuration;
