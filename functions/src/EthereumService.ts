@@ -1,5 +1,6 @@
 import * as infuraProvider from "eth-json-rpc-infura/src/createProvider";
 import * as Eth from "ethjs";
+/*eslint import/namespace: "warn"*/
 import * as moment from "moment";
 import fetch, { Headers } from "node-fetch";
 
@@ -69,7 +70,10 @@ export default class EthereumService {
           toBlock: "latest",
           address: eth2DepositContractAddress,
         });
-        this.queueLength = validatorLogs.length;
+        // Super weak calculation, take the time since genesis and assume 4 per epoch and subtract
+        const timeSinceGenesis = Math.abs(moment.duration(moment().diff(moment(this.genesisTime,"X"))).asSeconds()); //abs for before genesis
+        let alreadyInvited = Math.floor(timeSinceGenesis / 96);
+        this.queueLength = validatorLogs.length - alreadyInvited;
       } 
     }
 
