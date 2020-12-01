@@ -53,7 +53,13 @@ export default class EthereumService {
     // );  return Eth1.fromWei(balance, "ether");
 
     if (this.queueLength === null) {
-      if (moment() < moment(this.genesisTime, "X")) {
+      if (moment() >= moment(this.genesisTime, "X")) {
+        this.queueLength = await this.getPendingQueueValidators();
+      }
+
+      // either before genesis, or fallback due to bad API.
+      // TODO: retry primary if in fallback
+      if(!this.queueLength) {
         const eth2DepositContractAddress =
           "0x00000000219ab540356cbb839cbe05303d7705fa";
         const postGenesisBlock = "11320899";
@@ -64,9 +70,7 @@ export default class EthereumService {
           address: eth2DepositContractAddress,
         });
         this.queueLength = validatorLogs.length;
-      } else {
-        this.queueLength = await this.getPendingQueueValidators();
-      }
+      } 
     }
 
     return this.queueLength;
