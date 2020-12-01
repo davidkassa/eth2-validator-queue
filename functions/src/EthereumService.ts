@@ -54,7 +54,7 @@ export default class EthereumService {
 
     if (this.queueLength === null) {
       if (moment() >= moment(this.genesisTime, "X")) {
-        const validator = (await this.getPendingQueueValidators())?.length;
+        this.queueLength = (await this.getPendingQueueValidators())?.length;
       }
 
       // either before genesis, or fallback due to bad API.
