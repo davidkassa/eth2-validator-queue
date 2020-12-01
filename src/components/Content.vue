@@ -163,7 +163,7 @@ export default {
       //const remainingSlotSeconds = totalSeconds % epochSeconds;
       const slotSeconds = 12;
       //const slotNumber = remainingSlotSeconds / slotSeconds;
-      const slotNumber = totalSeconds / slotSeconds;
+      const slotNumber = Math.floor(totalSeconds / slotSeconds);
 
       // TODO: make beaconcha.in links
       return `Epoch ${epochNumber} / Slot ${slotNumber}`;
