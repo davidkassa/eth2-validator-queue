@@ -9,7 +9,7 @@ import Logger from "./Logger";
 export default class EthereumService {
   private eth1;
   private headers = new Headers();
-  private queueLength = null;
+  private queueLength:any = null;
   private queueDuration: any = null;
   private genesisTime = 1606824000;
   private pendingQueuedValidators = null;
@@ -54,12 +54,12 @@ export default class EthereumService {
 
     if (this.queueLength === null) {
       if (moment() >= moment(this.genesisTime, "X")) {
-        this.queueLength = await this.getPendingQueueValidators();
+        const validator = (await this.getPendingQueueValidators())?.length;
       }
 
       // either before genesis, or fallback due to bad API.
       // TODO: retry primary if in fallback
-      if(!this.queueLength) {
+      if(!this.queueLength || this.queueLength == 0) {
         const eth2DepositContractAddress =
           "0x00000000219ab540356cbb839cbe05303d7705fa";
         const postGenesisBlock = "11320899";
@@ -141,7 +141,7 @@ export default class EthereumService {
     return this.queueDuration;
   }
 
-  private async getPendingQueueValidators() {
+  private async getPendingQueueValidators() :Promise<any>{
     if (this.pendingQueuedValidators === null) {
       await fetch(
         Config.INFURA_ETH2_ENDPOINT +
