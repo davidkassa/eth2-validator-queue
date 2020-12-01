@@ -110,14 +110,14 @@ import * as moment from "moment";
 export default {
   name: "Content",
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       currentNetwork: "Ethereum Mainnet",
       validatorCount: "Loading...",
       estimatedTime: "Loading...",
-      estimatedCheckpoints: "Loading..."
+      estimatedCheckpoints: "Loading...",
     };
   },
   methods: {
@@ -125,23 +125,23 @@ export default {
       fetch(
         "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue"
       )
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.json();
           } else {
-            alert(
+            console.log(
               "Server returned " + response.status + " : " + response.statusText
             );
           }
         })
-        .then(response => {
+        .then((response) => {
           this.validatorCount = response.length;
           this.estimatedTime = this.getEstimatedTime(response.duration);
           this.estimatedCheckpoints = this.getEstimatedCheckpoint(
             response.duration
           );
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     },
@@ -156,7 +156,7 @@ export default {
       const totalSeconds = unixTime - genesisTime;
 
       const epochSeconds = 12 * 32;
-      const epochNumber = totalSeconds / epochSeconds;
+      const epochNumber = Math.floor(totalSeconds / epochSeconds);
 
       // The Slots vs Block logic may not be accurate.
       // Slots may increment forever, not per Epoch
@@ -167,12 +167,12 @@ export default {
 
       // TODO: make beaconcha.in links
       return `Epoch ${epochNumber} / Slot ${slotNumber}`;
-    }
+    },
   },
   created: function() {
-    setInterval(this.pdateValidatorQueue, 2 * 60 * 1000);
+    setInterval(this.updateValidatorQueue, 2 * 60 * 1000);
     this.updateValidatorQueue();
-  }
+  },
 };
 </script>
 <!--
@@ -180,7 +180,7 @@ export default {
     <script type="text/javascript">
       var eth = new Eth(
         new Eth.HttpProvider(
-          "https://mainnet.infura.io/v3/176772ea53e847ddacfcdb44a0c79f1b"
+          "https://mainnet.infura.io/v3/xxxx"
         )
       );
       var el = function(id) {

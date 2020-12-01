@@ -1,14 +1,19 @@
 import * as infuraProvider from "eth-json-rpc-infura/src/createProvider";
-import * as Eth1 from "ethjs";
+import * as Eth from "ethjs";
 import * as moment from "moment";
+import fetch, { Headers } from "node-fetch";
 
 import Config from "./Config";
 import Logger from "./Logger";
 
 export default class EthereumService {
   private eth1;
+  private headers = new Headers();
   private queueLength = null;
   private queueDuration: any = null;
+  private genesisTime = 1606824000;
+  private pendingQueuedValidators = null;
+  //private FAR_FUTURE_EPOCH = 18446744073709551615;
 
   // TODO: Lookup based on eth1 or tx address
 
@@ -26,7 +31,14 @@ export default class EthereumService {
       projectId: Config.INFURA_PROJECT_ID,
     })
   ) {
-    this.eth1 = new Eth1(eth1RpcProvider);
+    this.eth1 = new Eth(eth1RpcProvider);
+    this.headers.set(
+      "Authorization",
+      "Basic " +
+        Buffer.from(
+          Config.INFURA_PROJECT_ID + ":" + Config.INFURA_PROJECT_SECRET
+        ).toString("base64")
+    );
   }
 
   // Count deposits that have a valid contract starting with block 11320899 (first block after genesis - delay)
@@ -41,20 +53,20 @@ export default class EthereumService {
     // );  return Eth1.fromWei(balance, "ether");
 
     if (this.queueLength === null) {
-      const eth2DepositContractAddress =
-        "0x00000000219ab540356cbb839cbe05303d7705fa";
-      const postGenesisBlock = "11320899";
+      if (moment() < moment(this.genesisTime, "X")) {
+        const eth2DepositContractAddress =
+          "0x00000000219ab540356cbb839cbe05303d7705fa";
+        const postGenesisBlock = "11320899";
 
-      let validatorLogs = await this.eth1.getLogs({
-        fromBlock: new Eth1.BN(postGenesisBlock),
-        toBlock: "latest",
-        address: eth2DepositContractAddress,
-      });
-      Logger.debug(validatorLogs, {
-        structuredData: true,
-      });
-
-      this.queueLength = validatorLogs.length;
+        const validatorLogs = await this.eth1.getLogs({
+          fromBlock: new Eth.BN(postGenesisBlock),
+          toBlock: "latest",
+          address: eth2DepositContractAddress,
+        });
+        this.queueLength = validatorLogs.length;
+      } else {
+        this.queueLength = await this.getPendingQueueValidators();
+      }
     }
 
     return this.queueLength;
@@ -73,17 +85,13 @@ export default class EthereumService {
   //
   //     * Amount of activations scales with the amount of active validators and the limit is the active validator set divided by 64.000
   //
-  // NOTE: This method is overly simple and will work before genesis and until the pending queue is empty
-  // TODO: make more robust or switch over to eth2 API (after 64 epochs = Eth1_follow_distance)
-  // Ideally the latter but need public API, ideally using Lighthouse validator status spec, opposed to official
+  // NOTE: This method is overly simple, especially for pre genesis, and will work before genesis and until the pending queue is empty
   //
   // TODO: calculate based on the block. How does this work for eth1? Can use eth2 for sure.
   // TODO: calculate based on active validator count.
 
   public async calculateValidatorQueueDuration() {
     if (this.queueDuration === null) {
-      let queueLength = (await this.calculateValidatorQueueLength()) || 0;
-
       // TODO:
       // 21063 genesis validators
       // 327680 - 21063 = 306617 validators before going up from 4, so have some time
@@ -91,9 +99,9 @@ export default class EthereumService {
       // so long way to say assume 4 new validators per epoch for now
       // 4 validators per epoch is 12 sec * 32 / 4 = 1 per every 96 seconds
 
-      const genesisTime = 1606824000;
+      const genesis = moment(this.genesisTime, "X");
       let offset = moment();
-      let genesis = moment(genesisTime, "X");
+      const queueLength = (await this.calculateValidatorQueueLength()) || 0;
 
       if (offset < genesis) {
         offset = genesis;
@@ -101,8 +109,57 @@ export default class EthereumService {
       offset.add(96 * queueLength, "seconds");
 
       this.queueDuration = offset.unix();
+      // NOTE: activation_epoch is always FAR_FUTURE_EPOCH
+      //
+      // let validators = (await this.getPendingQueueValidators()) || [];
+      //
+      // let lastEpoch = 0;
+      // let lastEpochCount = 0; // 0-based
+      // validators.forEach((validator: any) => {
+      //   if (
+      //     validator.activation_epoch > lastEpoch &&
+      //     validator.activation_epoch !== this.FAR_FUTURE_EPOCH
+      //   ) {
+      //     lastEpoch = validator.activation_epoch;
+      //     lastEpochCount = 0;
+      //     Logger.info("LastEpoch", lastEpoch);
+      //   } else if (validator.activation_epoch === lastEpoch) {
+      //     lastEpochCount++;
+      //   }
+      // });
+      // // TODO: need to toggle based on validator count: 4, or 5, etc.
+      // genesis
+      //   .add(lastEpoch * 32 * 12, "seconds")
+      //   .add((lastEpochCount + 1) * 96, "seconds"); // +1 for next slot
+      // this.queueDuration = genesis.unix();
     }
 
     return this.queueDuration;
+  }
+
+  private async getPendingQueueValidators() {
+    if (this.pendingQueuedValidators === null) {
+      await fetch(
+        Config.INFURA_ETH2_ENDPOINT +
+          "/eth/v1/beacon/states/head/validators?status=pending_queued",
+        { headers: this.headers }
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            Logger.error(
+              "Server returned " + response.status + " : " + response.statusText
+            );
+          }
+        })
+        .then((response) => {
+          this.pendingQueuedValidators = response.data;
+        })
+        .catch((err) => {
+          Logger.error(err);
+        });
+    }
+    return this.pendingQueuedValidators;
   }
 }
