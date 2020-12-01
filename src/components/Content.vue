@@ -110,14 +110,14 @@ import * as moment from "moment";
 export default {
   name: "Content",
   props: {
-    msg: String,
+    msg: String
   },
   data() {
     return {
       currentNetwork: "Ethereum Mainnet",
       validatorCount: "Loading...",
       estimatedTime: "Loading...",
-      estimatedCheckpoints: "Loading...",
+      estimatedCheckpoints: "Loading..."
     };
   },
   methods: {
@@ -125,7 +125,7 @@ export default {
       fetch(
         "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue"
       )
-        .then((response) => {
+        .then(response => {
           if (response.ok) {
             return response.json();
           } else {
@@ -134,14 +134,14 @@ export default {
             );
           }
         })
-        .then((response) => {
+        .then(response => {
           this.validatorCount = response.length;
           this.estimatedTime = this.getEstimatedTime(response.duration);
           this.estimatedCheckpoints = this.getEstimatedCheckpoint(
             response.duration
           );
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
     },
@@ -167,12 +167,12 @@ export default {
 
       // TODO: make beaconcha.in links
       return `Epoch ${epochNumber} / Slot ${slotNumber}`;
-    },
+    }
   },
   created: function() {
     setInterval(this.updateValidatorQueue, 2 * 60 * 1000);
     this.updateValidatorQueue();
-  },
+  }
 };
 </script>
 <!--
