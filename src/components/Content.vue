@@ -122,6 +122,9 @@ export default {
   },
   methods: {
     updateValidatorQueue: function() {
+      this.validatorCount = "Loading...",
+      this.estimatedTime = "Loading...",
+      this.estimatedCheckpoints = "Loading...";
       fetch(
         "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue"
       )

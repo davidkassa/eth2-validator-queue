@@ -117,7 +117,7 @@ export default class EthereumService {
       offset.add(96 * queueLength, "seconds");
 
       this.queueDuration = offset.unix();
-      // NOTE: activation_epoch is always FAR_FUTURE_EPOCH
+      // NOTE: activation_epoch is almost always FAR_FUTURE_EPOCH
       //
       // let validators = (await this.getPendingQueueValidators()) || [];
       //
@@ -147,6 +147,7 @@ export default class EthereumService {
 
   private async getPendingQueueValidators() :Promise<any>{
     if (this.pendingQueuedValidators === null) {
+      Logger.info("calling API");
       await fetch(
         Config.INFURA_ETH2_ENDPOINT +
           "/eth/v1/beacon/states/head/validators?status=pending_queued",
