@@ -150,7 +150,7 @@ export default class EthereumService {
       Logger.info("calling API");
       await fetch(
         Config.INFURA_ETH2_ENDPOINT +
-          "/eth/v1/beacon/states/head/validators?status=pending_queued",
+          "/eth/v1/beacon/states/finalized/validators?status=pending_queued",
         { headers: this.headers }
       )
         .then((response) => {

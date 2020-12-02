@@ -1,5 +1,5 @@
 <template>
-  <div class="container" style="padding-top: 3%;">
+  <div class="container" style="padding-top: 3%">
     <h2><a href="index.html">Eth2 Validator Queue Stats</a></h2>
     <h4>Beacon Chain</h4>
 
@@ -110,51 +110,54 @@ import * as moment from "moment";
 export default {
   name: "Content",
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       currentNetwork: "Ethereum Mainnet",
       validatorCount: "Loading...",
       estimatedTime: "Loading...",
-      estimatedCheckpoints: "Loading..."
+      estimatedCheckpoints: "Loading...",
     };
   },
   methods: {
-    updateValidatorQueue: function() {
-      this.validatorCount = "Loading...",
-      this.estimatedTime = "Loading...",
-      this.estimatedCheckpoints = "Loading...";
+    updateValidatorQueue: function () {
+      (this.validatorCount = "Loading..."),
+        (this.estimatedTime = "Loading..."),
+        (this.estimatedCheckpoints = "Loading...");
       fetch(
         "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue"
       )
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.json();
           } else {
+            (this.validatorCount = "Error...please refresh manually "),
+              (this.estimatedTime = "Error..."),
+              (this.estimatedCheckpoints = "Error...");
             console.log(
               "Server returned " + response.status + " : " + response.statusText
             );
           }
         })
-        .then(response => {
+        .then((response) => {
           this.validatorCount = response.length;
           this.estimatedTime = this.getEstimatedTime(response.duration);
           this.estimatedCheckpoints = this.getEstimatedCheckpoint(
             response.duration
           );
         })
-        .catch(err => {
+        .catch((err) => {
+          (this.validatorCount = "Error...please refresh manually "),
+            (this.estimatedTime = "Error..."),
+            (this.estimatedCheckpoints = "Error...");
           console.log(err);
         });
     },
-    getEstimatedTime: function(unixTime) {
-      return moment
-        .unix(unixTime)
-        .local()
-        .toString();
+    getEstimatedTime: function (unixTime) {
+      return moment.unix(unixTime).local().toString();
     },
-    getEstimatedCheckpoint: function(unixTime) {
+    getEstimatedCheckpoint: function (unixTime) {
       const genesisTime = 1606824000;
       const totalSeconds = unixTime - genesisTime;
 
@@ -170,12 +173,12 @@ export default {
 
       // TODO: make beaconcha.in links
       return `Epoch ${epochNumber} / Slot ${slotNumber}`;
-    }
+    },
   },
-  created: function() {
+  created: function () {
     setInterval(this.updateValidatorQueue, 2 * 60 * 1000);
     this.updateValidatorQueue();
-  }
+  },
 };
 </script>
 <!--
