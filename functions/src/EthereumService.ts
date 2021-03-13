@@ -37,7 +37,7 @@ export default class EthereumService {
       "Authorization",
       "Basic " +
         Buffer.from(
-          Config.INFURA_PROJECT_ID + ":" + Config.INFURA_PROJECT_SECRET
+          Config.INFURA_ETH2_PROJECT_ID + ":" + Config.INFURA_ETH2_PROJECT_SECRET
         ).toString("base64")
     );
   }
