@@ -21,7 +21,6 @@ jobs:
         run: |
           npm ci
           cd ./functions && npm ci && cd ..
-          npm run test:unit
           npm run build
       - name: Deploy
         run: |
