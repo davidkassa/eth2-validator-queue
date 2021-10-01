@@ -1,5 +1,5 @@
 name: Deploy to Firebase Hosting on PR
-on: pull_request
+on: pull_request_target
 jobs:
   build_and_preview_website:
     runs-on: ubuntu-latest
@@ -11,6 +11,10 @@ jobs:
           node-version: 14.x # optional
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          # Check out the pull request HEAD
+          ref: ${{ github.event.pull_request.head.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           npm ci
