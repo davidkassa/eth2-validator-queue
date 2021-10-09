@@ -8,6 +8,8 @@ on:
 
 jobs:
   build_and_deploy:
+    concurrency: 
+      group: ${{ github.head_ref }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node.js environment
