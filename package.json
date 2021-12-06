@@ -14,7 +14,7 @@
     "core-js": "^3.19.2",
     "dayjs": "^1.10.7",
     "moment": "^2.29.1",
-    "vue": "^3.2.23"
+    "vue": "^3.2.24"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.15",
