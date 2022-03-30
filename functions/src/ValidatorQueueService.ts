@@ -13,7 +13,8 @@ export default class ValidatorQueueService {
   public async getValidatorQueue() {
     if (this.validatorQueue === null) {
       const length = await this.ethereumService.calculateValidatorQueueLength();
-      const duration = await this.ethereumService.calculateValidatorQueueDuration();
+      const duration =
+        await this.ethereumService.calculateValidatorQueueDuration();
       this.validatorQueue = new ValidatorQueue(length, duration);
     }
 

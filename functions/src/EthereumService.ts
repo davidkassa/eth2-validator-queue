@@ -10,7 +10,7 @@ import Logger from "./Logger";
 export default class EthereumService {
   private eth1;
   private headers = new Headers();
-  private queueLength:any = null;
+  private queueLength: any = null;
   private queueDuration: any = null;
   private genesisTime = 1606824000;
   private pendingQueuedValidators = null;
@@ -37,7 +37,9 @@ export default class EthereumService {
       "Authorization",
       "Basic " +
         Buffer.from(
-          Config.INFURA_ETH2_PROJECT_ID + ":" + Config.INFURA_ETH2_PROJECT_SECRET
+          Config.INFURA_ETH2_PROJECT_ID +
+            ":" +
+            Config.INFURA_ETH2_PROJECT_SECRET
         ).toString("base64")
     );
   }
@@ -60,7 +62,7 @@ export default class EthereumService {
 
       // either before genesis, or fallback due to bad API.
       // TODO: retry primary if in fallback
-      if(!this.queueLength || this.queueLength == 0) {
+      if (!this.queueLength || this.queueLength == 0) {
         const eth2DepositContractAddress =
           "0x00000000219ab540356cbb839cbe05303d7705fa";
         const postGenesisBlock = "11320899";
@@ -71,10 +73,14 @@ export default class EthereumService {
           address: eth2DepositContractAddress,
         });
         // Super weak calculation, take the time since genesis and assume 4 per epoch and subtract
-        const timeSinceGenesis = Math.abs(moment.duration(moment().diff(moment(this.genesisTime,"X"))).asSeconds()); //abs for before genesis
-        let alreadyInvited = Math.floor(timeSinceGenesis / 96);
+        const timeSinceGenesis = Math.abs(
+          moment
+            .duration(moment().diff(moment(this.genesisTime, "X")))
+            .asSeconds()
+        ); //abs for before genesis
+        const alreadyInvited = Math.floor(timeSinceGenesis / 96);
         this.queueLength = validatorLogs.length - alreadyInvited;
-      } 
+      }
     }
 
     return this.queueLength;
@@ -145,7 +151,7 @@ export default class EthereumService {
     return this.queueDuration;
   }
 
-  private async getPendingQueueValidators() :Promise<any>{
+  private async getPendingQueueValidators(): Promise<any> {
     if (this.pendingQueuedValidators === null) {
       Logger.info("calling API");
       await fetch(
