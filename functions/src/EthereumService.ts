@@ -160,10 +160,12 @@ export default class EthereumService {
             Logger.error(
               "Server returned " + response.status + " : " + response.statusText
             );
+            return Promise.reject(response.error());
           }
         })
         .then((response) => {
           this.pendingQueuedValidators = response.data;
+          return Promise.resolve();
         })
         .catch((err) => {
           Logger.error(err);
