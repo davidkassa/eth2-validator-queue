@@ -13,7 +13,7 @@
   "dependencies": {
     "core-js": "^3.21.1",
     "dayjs": "^1.11.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "vue": "^3.2.31"
   },
   "devDependencies": {
@@ -27,9 +27,9 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "^7.19.1",
+    "eslint-plugin-vue": "^7.20.0",
     "lint-staged": "^12.3.7",
-    "prettier": "^2.6.1",
+    "prettier": "^2.6.2",
     "typescript": "^4.6.3",
     "vue-jest": "^5.0.0-alpha.10"
   }

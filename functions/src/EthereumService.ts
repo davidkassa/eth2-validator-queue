@@ -62,7 +62,7 @@ export default class EthereumService {
 
       // either before genesis, or fallback due to bad API.
       // TODO: retry primary if in fallback
-      if (!this.queueLength || this.queueLength == 0) {
+      if (!this.queueLength || this.queueLength === 0) {
         const eth2DepositContractAddress =
           "0x00000000219ab540356cbb839cbe05303d7705fa";
         const postGenesisBlock = "11320899";
