@@ -23,7 +23,7 @@
     "@vue/cli-plugin-eslint": "^5.0.4",
     "@vue/cli-plugin-unit-jest": "^5.0.4",
     "@vue/cli-service": "^5.0.4",
-    "@vue/compiler-sfc": "^3.2.32",
+    "@vue/compiler-sfc": "^3.2.33",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/test-utils": "^2.0.0-rc.20",
     "@vue/vue3-jest": "^27.0.0-alpha.4",
