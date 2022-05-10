@@ -12,8 +12,10 @@ export default class EthereumService {
   private headers = new Headers();
   private queueLength: any = null;
   private queueDuration: any = null;
+  private activeCount: any = null;
   private genesisTime = 1606824000;
   private pendingQueuedValidators = null;
+  private activeValidators = null;
   //private FAR_FUTURE_EPOCH = 18446744073709551615;
 
   // TODO: Lookup based on eth1 or tx address
@@ -61,7 +63,7 @@ export default class EthereumService {
       }
 
       // either before genesis, or fallback due to bad API.
-      // TODO: retry primary if in fallback
+      // TODO: retry primary if in fallback & use better calculation
       if (!this.queueLength || this.queueLength === 0) {
         const eth2DepositContractAddress =
           "0x00000000219ab540356cbb839cbe05303d7705fa";
@@ -86,6 +88,24 @@ export default class EthereumService {
     return this.queueLength;
   }
 
+  // TODO: cache heavily
+  // TODO: split processing into cronjob
+  // TODO: validate contracts with eth_getTransactionReceipt, bad contract tx: 0xffff18a9c5da09f367325f4d98bb0cfb4f7885eddf3f010b1e6693c6852ac2c4
+  // TODO: make this work on testnets
+  public async calculateActiveValidatorCount() {
+    // try again if we have 0, either before activation (cheap) or error
+    if (this.activeCount === null || this.activeCount === 0) {
+      if (moment() >= moment(this.genesisTime, "X")) {
+        this.activeCount = (await this.getActiveValidators())?.length;
+      } else {
+        this.activeCount = 0;
+      }
+    }
+
+    return this.activeCount;
+  }
+
+
   // https://kb.beaconcha.in/glossary#validator-lifecycle
   // Validator Lifecycle
   //   1. Deposited
@@ -100,9 +120,6 @@ export default class EthereumService {
   //     * Amount of activations scales with the amount of active validators and the limit is the active validator set divided by 64.000
   //
   // NOTE: This method is overly simple, especially for pre genesis, and will work before genesis and until the pending queue is empty
-  //
-  // TODO: calculate based on the block. How does this work for eth1? Can use eth2 for sure.
-  // TODO: calculate based on active validator count.
 
   public async calculateValidatorQueueDuration() {
     if (this.queueDuration === null) {
@@ -112,15 +129,40 @@ export default class EthereumService {
       // 76654.25 epochs, so 306617 slots -> 3679404 seconds -> 1022.05667 h ->  42.5856944 days
       // so long way to say assume 4 new validators per epoch for now
       // 4 validators per epoch is 12 sec * 32 / 4 = 1 per every 96 seconds
+      // 5 validators per epoch is 12 sec * 32 / 5 = 1 per every 76.8 seconds (is actually 5 per 6.4 min)
+      const SECONDS_PER_SLOT = 12; //sec
+      const SLOTS_PER_EPOCH = 32; //6.4 min
+      const MIN_PER_EPOCH_CHURN_LIMIT = 4; // 2^2
+      const CHURN_LIMIT_QUOTIENT = 65536; // 2^16
+      // active_validator_indices = get_active_validator_indices(state, get_current_epoch(state)) 
+      // return max(MIN_PER_EPOCH_CHURN_LIMIT, uint64(len(active_validator_indices)) // CHURN_LIMIT_QUOTIENT)
+
+      // while pending_churn_limit is > current, calculate and strip
 
       const genesis = moment(this.genesisTime, "X");
       let offset = moment();
+      const activeCount = (await this.calculateActiveValidatorCount()) || 0;
       const queueLength = (await this.calculateValidatorQueueLength()) || 0;
+      let totalLength = activeCount + queueLength;
+
+      let current_churn_limit = Math.max(MIN_PER_EPOCH_CHURN_LIMIT, Math.floor(activeCount / CHURN_LIMIT_QUOTIENT));
+      let pending_churn_limit = Math.max(MIN_PER_EPOCH_CHURN_LIMIT, Math.floor((totalLength) / CHURN_LIMIT_QUOTIENT));
+
+      // current: 320,000; queue: 20,000 = (7680 * 96 sec) + (12320 * 76.8 sec) = 737280 + 946,176 = 1,683,456
+      // current: 330,000; queue: 20,000 = 10000 * 76.8 sec = 768000
+      let current_total_length = totalLength;
+      let total_duration = 0;
+      for(let i = pending_churn_limit;i >= current_churn_limit; i--){
+        let current_duration = SECONDS_PER_SLOT * SLOTS_PER_EPOCH / i;
+        let current_queue_length = current_total_length - Math.max(activeCount,i * CHURN_LIMIT_QUOTIENT);
+        current_total_length -= current_queue_length;
+        total_duration += current_duration * current_queue_length;
+      }
 
       if (offset < genesis) {
         offset = genesis;
       }
-      offset.add(96 * queueLength, "seconds");
+      offset.add(total_duration, "seconds");
 
       this.queueDuration = offset.unix();
       // NOTE: activation_epoch is almost always FAR_FUTURE_EPOCH
@@ -178,5 +220,34 @@ export default class EthereumService {
         });
     }
     return this.pendingQueuedValidators;
+  }
+
+  private async getActiveValidators(): Promise<any> {
+    if (this.activeValidators === null) {
+      Logger.info("calling API");
+      await fetch(
+        Config.INFURA_ETH2_ENDPOINT +
+          "/eth/v1/beacon/states/finalized/validators?status=active_ongoing,active_exiting,active_slashed",
+        { headers: this.headers }
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            Logger.error(
+              "Server returned " + response.status + " : " + response.statusText
+            );
+            return Promise.reject();
+          }
+        })
+        .then((response: any) => {
+          this.activeValidators = response.data;
+          return Promise.resolve();
+        })
+        .catch((err) => {
+          Logger.error(err);
+        });
+    }
+    return this.activeValidators;
   }
 }
