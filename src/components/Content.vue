@@ -126,7 +126,7 @@ export default {
         (this.estimatedTime = "Loading..."),
         (this.estimatedCheckpoints = "Loading...");
       fetch(
-        "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue"
+        "https://us-central1-eth2-validator-queue.cloudfunctions.net/validatorQueue",{},30000
       )
         .then((response) => {
           if (response.ok) {
