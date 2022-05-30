@@ -16,12 +16,7 @@ module.exports = {
         ignores: ["Content"],
       },
     ],
-    "vue/no-reserved-component-names": [
-      "error",
-      {
-        ignores: ["Content"],
-      },
-    ],
+    "vue/no-reserved-component-names": "warn",
   },
   overrides: [
     {
