@@ -13,7 +13,7 @@
   "dependencies": {
     "core-js": "^3.22.7",
     "dayjs": "^1.11.2",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "vue": "^3.2.37"
   },
   "devDependencies": {
