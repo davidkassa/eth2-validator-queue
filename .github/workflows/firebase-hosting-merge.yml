@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Build
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           cd ./functions && npm ci && cd ..
           npm run build
       - name: Deploy
