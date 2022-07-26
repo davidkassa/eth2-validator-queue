@@ -17,7 +17,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           cd ./functions && npm ci && cd ..
           npm run build
       - name: Deploy
