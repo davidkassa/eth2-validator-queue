@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/express-serve-static-core": "^4.17.30",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
+    "@typescript-eslint/parser": "^5.33.0",
     "eslint": "^8.20.0",
     "eslint-plugin-import": "^2.26.0",
     "firebase-functions-test": "^2.2.0",
