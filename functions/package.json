@@ -24,7 +24,7 @@
     "node-fetch": "^3.2.10"
   },
   "devDependencies": {
-    "@types/express-serve-static-core": "^4.17.30",
+    "@types/express-serve-static-core": "^4.17.31",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.40.0",
     "eslint": "^8.25.0",
