@@ -3,7 +3,7 @@ import Content from "@/components/Content.vue";
 
 describe("Content.vue", () => {
   it("renders props.msg when passed", () => {
-    const msg = "new message";
+    const msg = "Welcome to Your Vue.js App";
     const wrapper = shallowMount(Content, {
       props: { msg },
     });
