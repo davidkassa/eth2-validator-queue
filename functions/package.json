@@ -12,7 +12,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "16"
+    "node": "18"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -20,8 +20,7 @@
     "ethjs": "^0.4.0",
     "firebase-admin": "^11.4.1",
     "firebase-functions": "^4.1.1",
-    "moment": "^2.29.3",
-    "node-fetch": "^3.3.0"
+    "moment": "^2.29.3"
   },
   "devDependencies": {
     "@types/express-serve-static-core": "^4.17.31",

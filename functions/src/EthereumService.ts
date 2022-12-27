@@ -2,7 +2,6 @@ import * as infuraProvider from "eth-json-rpc-infura/src/createProvider";
 import * as Eth from "ethjs";
 /*eslint import/namespace: "warn"*/
 import * as moment from "moment";
-import fetch, { Headers } from "node-fetch";
 
 import Config from "./Config";
 import Logger from "./Logger";
@@ -105,7 +104,6 @@ export default class EthereumService {
     return this.activeCount;
   }
 
-
   // https://kb.beaconcha.in/glossary#validator-lifecycle
   // Validator Lifecycle
   //   1. Deposited
@@ -134,7 +132,7 @@ export default class EthereumService {
       const SLOTS_PER_EPOCH = 32; //6.4 min
       const MIN_PER_EPOCH_CHURN_LIMIT = 4; // 2^2
       const CHURN_LIMIT_QUOTIENT = 65536; // 2^16
-      // active_validator_indices = get_active_validator_indices(state, get_current_epoch(state)) 
+      // active_validator_indices = get_active_validator_indices(state, get_current_epoch(state))
       // return max(MIN_PER_EPOCH_CHURN_LIMIT, uint64(len(active_validator_indices)) // CHURN_LIMIT_QUOTIENT)
 
       // while pending_churn_limit is > current, calculate and strip
@@ -143,18 +141,26 @@ export default class EthereumService {
       let offset = moment();
       const activeCount = (await this.calculateActiveValidatorCount()) || 0;
       const queueLength = (await this.calculateValidatorQueueLength()) || 0;
-      let totalLength = activeCount + queueLength;
+      const totalLength = activeCount + queueLength;
 
-      let current_churn_limit = Math.max(MIN_PER_EPOCH_CHURN_LIMIT, Math.floor(activeCount / CHURN_LIMIT_QUOTIENT));
-      let pending_churn_limit = Math.max(MIN_PER_EPOCH_CHURN_LIMIT, Math.floor((totalLength) / CHURN_LIMIT_QUOTIENT));
+      const current_churn_limit = Math.max(
+        MIN_PER_EPOCH_CHURN_LIMIT,
+        Math.floor(activeCount / CHURN_LIMIT_QUOTIENT)
+      );
+      const pending_churn_limit = Math.max(
+        MIN_PER_EPOCH_CHURN_LIMIT,
+        Math.floor(totalLength / CHURN_LIMIT_QUOTIENT)
+      );
 
       // current: 320,000; queue: 20,000 = (7680 * 96 sec) + (12320 * 76.8 sec) = 737280 + 946,176 = 1,683,456
       // current: 330,000; queue: 20,000 = 10000 * 76.8 sec = 768000
       let current_total_length = totalLength;
       let total_duration = 0;
-      for(let i = pending_churn_limit;i >= current_churn_limit; i--){
-        let current_duration = SECONDS_PER_SLOT * SLOTS_PER_EPOCH / i;
-        let current_queue_length = current_total_length - Math.max(activeCount,i * CHURN_LIMIT_QUOTIENT);
+      for (let i = pending_churn_limit; i >= current_churn_limit; i--) {
+        const current_duration = (SECONDS_PER_SLOT * SLOTS_PER_EPOCH) / i;
+        const current_queue_length =
+          current_total_length -
+          Math.max(activeCount, i * CHURN_LIMIT_QUOTIENT);
         current_total_length -= current_queue_length;
         total_duration += current_duration * current_queue_length;
       }
