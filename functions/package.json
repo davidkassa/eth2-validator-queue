@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/express-serve-static-core": "^4.17.31",
-    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
     "eslint": "^8.26.0",
     "eslint-plugin-import": "^2.26.0",
