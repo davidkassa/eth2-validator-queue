@@ -13,7 +13,7 @@
     "ci-all": "npm ci && npm ci --prefix functions"
   },
   "dependencies": {
-    "dayjs": "^1.11.6",
+    "dayjs": "^1.11.7",
     "moment": "^2.29.3",
     "vue": "^3.2.45"
   },
