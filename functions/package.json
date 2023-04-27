@@ -23,7 +23,7 @@
     "moment": "^2.29.3"
   },
   "devDependencies": {
-    "@types/express-serve-static-core": "^4.17.33",
+    "@types/express-serve-static-core": "^4.17.34",
     "@types/node": "^18.13.0",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
